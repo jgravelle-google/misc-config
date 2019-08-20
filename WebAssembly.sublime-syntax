@@ -1,0 +1,77 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+file_extensions:
+  - wat
+  - wast
+scope: source.wat
+contexts:
+  main:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character
+    - match: '"'
+      scope: punctuation.definition.string.begin.wat
+      push: double_quoted_string
+
+    # Comments begin with a ';' and finish at the end of the line
+    - match: ';'
+      scope: punctuation.definition.comment.wat
+      push: line_comment
+
+    - match: '\(;'
+      scope: punctuation.definition.comment.wat
+      push: block_comment
+
+    # Keywords are if, else for and while.
+    # Note that backslashes don't need to be escaped within single quoted
+    # strings in YAML. When using single quoted strings, only single quotes
+    # need to be escaped: this is done by using two single quotes next to each
+    # other.
+    - match: '\b(if|else|loop|block|call|br|br_if)\b'
+      scope: keyword.control.wat
+    - match: '\b(module|import|data|type|export|param|result|elem|table)\b'
+      scope: keyword.declaration.wat
+    - match: '\b(global|local)\b'
+      scope: variable.function.wat
+
+    - match: '\b(i32|i64|f32|f64)\b'
+      scope: storage.type.wat
+
+    # Numbers
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric.wat
+
+    - match: '\bfunc\b'
+      scope: keyword.function.wat
+      push: func_decl
+
+    - match: '\$\w+'
+      scope: variable.parameter.wat
+      # scope: keyword.control.wat
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.wat
+    - match: '\\[0-9a-f]{2}'
+      scope: constant.character.escape.wat
+    - match: '\\.'
+      scope: constant.character.escape.wat
+    - match: '"'
+      scope: punctuation.definition.string.end.wat
+      pop: true
+
+  line_comment:
+    - meta_scope: comment.line.wat
+    - match: $
+      pop: true
+
+  block_comment:
+    - meta_scope: comment.line.wat
+    - match: ';\)'
+      pop: true
+
+  func_decl:
+    - match: '\$\w*'
+      scope: entity.name.function.wat
+      pop: true
+    - match: '[()]'
+      pop: true
